@@ -1,46 +1,32 @@
-package reviewcrawler
+package de.leoiv.reviewcrawler
 
+import de.leoiv.reviewcrawler.entities.Review
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import reviewcrawler.entities.{Product, Review}
 
 import scala.collection.JavaConversions
 import scala.collection.JavaConverters._
 
 
 /**
-  *
-  * Crawler - works currently only for books
+  * Product Crawler
   *
   * Created by hoevelmann on 13.10.2016.
   */
-object Crawler {
-
-  def main(args: Array[String]): Unit = {
-    args.length match{
-      case 3 => {
-        val review = getAllReviewsWithAllStars(args(1), args(2) toInt)
-        val product = new Product(args(1), args(0), review)
-        println(product)
-      }
-      case _ => println("You did not provide all required parameters: \n\n1:\tProduct name\n2:\t Amazon product id\n3:\tnumber of last page that will no more be included")
-    }
-
-  }
+class Crawler(val productId: String) {
 
   /**
     * Collects Reviews for all stars (1-5)
     *
-    * @param productId the amazon product id
     * @param pages the method will fetch reviews from pages 1 - (pages-1)
     * @return
     */
-  def getAllReviewsWithAllStars(productId: String, pages: Int): List[Review] = {
+  def allReviews(pages: Int): List[Review] = {
     def collectReviews(reviewAcc: List[Review], currentStar: Int): List[Review] = {
       currentStar match {
         case 6 => reviewAcc
-        case _ => getAllReviewsWithStars(productId, currentStar, pages) ::: collectReviews(reviewAcc, currentStar + 1)
+        case _ => reviewsWithRating(currentStar, pages) ::: collectReviews(reviewAcc, currentStar + 1)
       }
     }
     collectReviews(List(), 1)
@@ -49,12 +35,11 @@ object Crawler {
   /**
     * Collects reviews for one specific star rating
     *
-    * @param productId the amazon product id
     * @param stars reviews with this star rating will be fetched
     * @param pages the method will fetch reviews from pages 1 - (pages-1)
     * @return
     */
-  def getAllReviewsWithStars(productId: String, stars: Int, pages: Int): List[Review] = {
+  def reviewsWithRating(stars: Int, pages: Int): List[Review] = {
     def starsAsString(star: Int): String = star match {
       case 1 => "one"
       case 2 => "two"
@@ -82,10 +67,10 @@ object Crawler {
     * @param url the url from which is fetched
     * @return
     */
-  def seachReviewsOnPage(url: String): List[Review] = {
+  private def seachReviewsOnPage(url: String): List[Review] = {
     def getRating(classNames: Set[String]): Byte = {
       val starString = classNames.filter(_.indexOf("a-star-") >= 0).head
-      starString.substring(starString.length-1, starString.length) toByte
+      starString.substring(starString.length - 1, starString.length) toByte
     }
 
     println("fetching from " + url)

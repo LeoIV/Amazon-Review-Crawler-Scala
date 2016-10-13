@@ -1,4 +1,4 @@
-package reviewcrawler.entities
+package de.leoiv.reviewcrawler.entities
 
 /**
   * Created by hoevelmann on 13.10.2016.
