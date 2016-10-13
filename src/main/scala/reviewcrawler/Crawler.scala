@@ -1,9 +1,5 @@
 package reviewcrawler
 
-
-import net.liftweb.json.JsonAST._
-import net.liftweb.json.Extraction._
-import net.liftweb.json.Printer._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
@@ -27,8 +23,6 @@ object Crawler {
         val review = getAllReviewsWithAllStars(args(1), args(2) toInt)
         val product = new Product(args(1), args(0), review)
         println(product)
-        implicit val formats = net.liftweb.json.DefaultFormats
-        product.to
       }
       case _ => println("You did not provide all required parameters: \n\n1:\tProduct name\n2:\t Amazon product id\n3:\tnumber of last page that will no more be included")
     }
@@ -38,8 +32,8 @@ object Crawler {
   /**
     * Collects Reviews for all stars (1-5)
     *
-    * @param productId
-    * @param pages
+    * @param productId the amazon product id
+    * @param pages the method will fetch reviews from pages 1 - (pages-1)
     * @return
     */
   def getAllReviewsWithAllStars(productId: String, pages: Int): List[Review] = {
@@ -55,9 +49,9 @@ object Crawler {
   /**
     * Collects reviews for one specific star rating
     *
-    * @param productId
-    * @param stars
-    * @param pages
+    * @param productId the amazon product id
+    * @param stars reviews with this star rating will be fetched
+    * @param pages the method will fetch reviews from pages 1 - (pages-1)
     * @return
     */
   def getAllReviewsWithStars(productId: String, stars: Int, pages: Int): List[Review] = {
@@ -85,7 +79,7 @@ object Crawler {
   /**
     * Looks for all reviews on page
     *
-    * @param url
+    * @param url the url from which is fetched
     * @return
     */
   def seachReviewsOnPage(url: String): List[Review] = {
