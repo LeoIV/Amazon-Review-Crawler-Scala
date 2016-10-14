@@ -12,3 +12,6 @@ val books = for(subcategory <- subcategories) yield subcategory.products
 
 // Getting all reviews (first page only, because the parameter is set to 2) of all books
 val reviews = for(bookReviewList <- books.withFilter(_.isSuccess); review <- bookReviewList.get) yield review.allReviews(2)
+
+import slick.driver.H2Driver.api._
+import slick.lifted.{ProvenShape, ForeignKeyQuery}

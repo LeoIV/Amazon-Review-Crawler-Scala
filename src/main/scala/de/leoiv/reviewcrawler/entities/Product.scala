@@ -14,7 +14,7 @@ import scala.util.Try
 @SerialVersionUID(3566474325L)
 class Product(var asin: String, var name: String, val pages: Int) extends Serializable {
 
-  println("product created ("+name+")")
+  println("product created (" + name + ")")
 
   lazy val reviews: Try[List[Review]] = Try(allReviews(pages))
 
@@ -84,7 +84,6 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
     val reviewList = List() ++ reviews
     reviewList
   }
-
 
   override def toString(): String = "Product(" + asin + "," + name + "," + "," + pages + ", lazy val reviews)"
 }

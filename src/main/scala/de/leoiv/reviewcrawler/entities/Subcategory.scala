@@ -8,15 +8,21 @@ import scala.util.Try
 
 /**
   * Created by hoevelmann on 14.10.2016.
+  * leonard.hoevelmann@posteo.de
+  *
   */
 class Subcategory(val name: String, val url: String, val pages: Int) {
 
-  println("subcategory created ("+name+")")
+  println("subcategory created (" + name + ")")
 
-  lazy val products: Try[List[Product]] = Try(fetchProducts)
+  lazy val products: Try[List[Product]] = Try(fetchProducts(List(), url, 1))
 
-  private def fetchProducts: List[Product] = {
+  private def fetchProducts(outerProductAcc: List[Product], url: String, currentPage: Int): List[Product] = {
+    println("Currently fetching products for subcategory "+name+" on page "+currentPage)
+
+    // Connect with amazon
     val doc = ConnectorService.document(url)
+
     val linkContainer = doc getElementsByClass ("s-result-item")
     //val linksWrapper = linkContainer.get(0).getElementsByClass("s-access-detail-page")
     val linkContainerList = List() ++ linkContainer.asScala
@@ -30,7 +36,15 @@ class Subcategory(val name: String, val url: String, val pages: Int) {
         collectProducts(new Product(asin, name, pages) :: productAcc, elements.tail)
       }
     }
-    collectProducts(List(), linkContainerList)
+    val currentReviewList = collectProducts(outerProductAcc, linkContainerList)
+
+
+    // if element "next page" is not clickable or the current page is larger than the speci
+    if (!doc.getElementById("pagnNextString").parent().hasAttr("href") || currentPage >= pages)
+      currentReviewList
+    else
+      fetchProducts(currentReviewList, "https://www.amazon.de" + doc.getElementById("pagnNextString").parent().attr("href"), currentPage + 1)
+
   }
 
   override def toString(): String = "Subcategory(" + name + "," + url + "," + pages + ", lazy val products)"
