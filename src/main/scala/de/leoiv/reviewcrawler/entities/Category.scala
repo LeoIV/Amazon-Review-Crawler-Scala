@@ -2,7 +2,6 @@ package de.leoiv.reviewcrawler.entities
 
 import de.leoiv.reviewcrawler.services.ConnectorService
 import org.jsoup.nodes.Element
-import org.mongodb.scala.bson.collection.immutable.Document
 
 import scala.collection.JavaConverters._
 
