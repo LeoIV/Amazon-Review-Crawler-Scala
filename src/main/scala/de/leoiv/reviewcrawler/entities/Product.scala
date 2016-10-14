@@ -11,7 +11,6 @@ import scala.util.Try
 /**
   * Created by hoevelmann on 13.10.2016.
   */
-@SerialVersionUID(3566474325L)
 class Product(var asin: String, var name: String, val pages: Int) extends Serializable {
 
   println("product created (" + name + ")")
@@ -52,7 +51,7 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
       currentPage match {
         case `lastPage` => reviewAcc
         case _ => {
-          val url = "http://www.amazon.de/product-reviews/" + asin + "/ref=cm_cr_arp_d_hist_" + stars + "?filterByStar=" + stars + "_star&pageNumber=" + currentPage
+          val url = "http://www.amazon.de/product-reviews/" + asin + "/ref=cm_cr_arp_d_hist_" + stars + "?filterByStar=" + starsAsString(stars) + "_star&pageNumber=" + currentPage
           collectReviews(reviewAcc ::: seachReviewsOnPage(url), currentPage + 1, lastPage, stars)
         }
       }

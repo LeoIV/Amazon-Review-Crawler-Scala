@@ -11,7 +11,7 @@ import org.jsoup.nodes.Document
 class ConnectorService {
 
   // acting as a firefox
-  def document(url: String): Document = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:48.0) Gecko/20100101 Firefox/48.0")
+  def document(url: String): Document = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:49.0) Gecko/20100101 Firefox/4890")
     .timeout(10000).ignoreHttpErrors(true).followRedirects(true).get();
 
 }

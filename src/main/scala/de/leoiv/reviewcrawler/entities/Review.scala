@@ -7,7 +7,6 @@ package de.leoiv.reviewcrawler.entities
   * leonard.hoevelmann@posteo.de
   *
   */
-@SerialVersionUID(42832475L)
 class Review(val amazonId: String, val rating: Byte, val title: String, val reviewText: String) extends Serializable {
   override def toString(): String = "Review(" + amazonId + "," + rating + "," + title + "," + reviewText + ")"
 }

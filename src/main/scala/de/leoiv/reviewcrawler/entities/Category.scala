@@ -12,7 +12,6 @@ import scala.collection.JavaConverters._
   * Created by hoevelmann on 13.10.2016.
   * leonard.hoevelmann@posteo.de
   */
-@SerialVersionUID(6534485L)
 class Category(val name: String, val url: String, val pages: Int) {
 
   println("category created (" + name + ")")
@@ -34,9 +33,12 @@ class Category(val name: String, val url: String, val pages: Int) {
         collectSubcategories(new Subcategory(currentLink.text(), "https://www.amazon.de" + currentLink.attr("href"), pages) :: categoryAcc, elements.tail)
       }
     }
-
     collectSubcategories(List(), links)
   }
 
   override def toString(): String = "Category(" + name + "," + url + "," + pages + ", lazy val subcategories)"
+}
+
+object Category{
+  def apply(name: String, url: String, pages: Int): Category = new Category(name, url, pages)
 }
