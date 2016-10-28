@@ -6,6 +6,9 @@ import au.com.bytecode.opencsv.CSVReader
 import de.leoiv.reviewcrawler.entities.Category
 import org.apache.spark.{SparkContext, SparkConf}
 
+import org.apache.log4j.Logger
+import org.apache.log4j.Level
+
 
 /**
   * Created by hoevelmann on 14.10.2016.
@@ -13,6 +16,10 @@ import org.apache.spark.{SparkContext, SparkConf}
 object Runner {
 
   def main(args: Array[String]): Unit = {
+    // Logger less verbose
+    Logger.getLogger("org").setLevel(Level.WARN)
+    Logger.getLogger("akka").setLevel(Level.WARN)
+
     // Defining Spark Context
     val conf = new SparkConf().setMaster("local").setAppName("ReviewCrawler")
     val sc = new SparkContext(conf)
