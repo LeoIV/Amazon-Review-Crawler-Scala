@@ -1,6 +1,6 @@
 package de.leoiv.reviewcrawler
 
-import java.io.{StringReader, FileWriter, PrintWriter}
+import java.io.{StringReader, FileWriter}
 
 import au.com.bytecode.opencsv.CSVReader
 import de.leoiv.reviewcrawler.entities.Category
@@ -46,7 +46,9 @@ object Runner {
 
     for (product <- products) {
       for (review <- product.reviews.get
-           if product.reviews.isSuccess) {
+           if product.reviews.isSuccess
+           // if review is not already in text file
+           if reviewRdd.count() == 0 || reviewRdd.filter(r => r(2) == review.amazonId).count() == 0) {
         reviewFileWriter.write(category.name.replace(';', ',') + ";" + product.asin + ";" + review.amazonId + ";" + review.title.replace(';', ',') + ";" + review.reviewText.replace(';', ',') + ";" + review.rating + "\n")
       }
     }
