@@ -50,15 +50,17 @@ object Runner {
       new Category("Sportprodukte", "https://www.amazon.de/dvd-blu-ray-filme-3D-vhs-video/b/ref=sd_allcat_dvd_blu?ie=UTF8&node=284266", numPages)
     )
 
-    for (subcategory <- categories.filter(_.subcategories.isSuccess).flatMap(_.subcategories.get)) {
-      if (subcategory.products.isSuccess) {
-        // ignore all products that already have a review in the text file
-        for (product <- subcategory.products.get if reviewRdd.count() == 0 || reviewRdd.filter(rev => rev(1) == product.asin).count() == 0) {
-          for (review <- product.reviews.get
-               if product.reviews.isSuccess
-               // if review is not already in text file
-               if reviewRdd.count() == 0 || reviewRdd.filter(r => r(2) == review.amazonId).count() == 0) {
-            reviewFileWriter.write(subcategory.name.replace(';', ',') + ";" + product.asin + ";" + review.amazonId + ";" + review.title.replace(';', ',') + ";" + review.reviewText.replace(';', ',') + ";" + review.rating + "\n")
+    for (category <- categories.filter(_.subcategories.isSuccess)) {
+      for (subcategory <- category.subcategories.get) {
+        if (subcategory.products.isSuccess) {
+          // ignore all products that already have a review in the text file
+          for (product <- subcategory.products.get if reviewRdd.count() == 0 || reviewRdd.filter(rev => rev(1) == product.asin).count() == 0) {
+            for (review <- product.reviews.get
+                 if product.reviews.isSuccess
+                 // if review is not already in text file
+                 if reviewRdd.count() == 0 || reviewRdd.filter(r => r(2) == review.amazonId).count() == 0) {
+              reviewFileWriter.write(category.name.replace(';', ',') + ";" + product.asin + ";" + review.amazonId + ";" + review.title.replace(';', ',') + ";" + review.reviewText.replace(';', ',') + ";" + review.rating + "\n")
+            }
           }
         }
       }
