@@ -15,9 +15,9 @@ import scala.util.Try
   */
 class Category(val name: String, val url: String, val pages: Int) {
 
-  lazy val subcategories: Try[List[Subcategory]] = fetchSubkategorien
+  lazy val subcategories: Try[List[Subcategory]] = fetchSubcategories
 
-  private def fetchSubkategorien: Try[List[Subcategory]] = {
+  private def fetchSubcategories: Try[List[Subcategory]] = {
     Try {
       // Connect with amazon
       val doc = ConnectorService(url, 1000)

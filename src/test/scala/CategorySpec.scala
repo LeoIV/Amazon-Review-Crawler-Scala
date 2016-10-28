@@ -13,8 +13,8 @@ class CategorySpec extends FlatSpec with Matchers {
     assert(category.subcategories.get.head.name.length > 0)
   }
 
-  "A category \"Elektronik & Foto\" " should "have a list of subcategories" in {
-    val category = new Category("Elektronik und Foto", "https://www.amazon.de/Elektronik-Foto/b/ref=sd_allcat_el?ie=UTF8&node=562066", 2)
+  "A category \"Kamera & Foto\" " should "have a list of subcategories" in {
+    val category = new Category("Elektronik und Foto", "https://www.amazon.de/Kamera-Foto-Digitalkameras-Spiegelreflexkameras-Camcorder/b/ref=sd_allcat_p?ie=UTF8&node=571860", 2)
     assert(category.subcategories.get.length > 0)
     assert(category.subcategories.get.head.name.length > 0)
   }

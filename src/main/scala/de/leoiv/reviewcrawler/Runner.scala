@@ -41,7 +41,7 @@ object Runner {
     // Initial categories
     val categories = List(
       new Category("Buecher", "https://www.amazon.de/b%C3%BCcher-buch-lesen/b/ref=sd_allcat_bo?ie=UTF8&node=186606", numPages),
-      new Category("Elektronik und Foto", "https://www.amazon.de/Elektronik-Foto/b/ref=sd_allcat_el?ie=UTF8&node=562066", numPages),
+      new Category("Kamera und Foto", "https://www.amazon.de/Kamera-Foto-Digitalkameras-Spiegelreflexkameras-Camcorder/b/ref=sd_allcat_p?ie=UTF8&node=571860", numPages),
       new Category("Kueche und Haushalt", "https://www.amazon.de/k%C3%BCche-haushalt/b/ref=sd_allcat_allkhprod?ie=UTF8&node=3167641", numPages),
       new Category("Tiernahrung", "https://www.amazon.de/Tierbedarf-Tiernahrung/b/ref=sd_allcat_ps?ie=UTF8&node=340852031", numPages),
       new Category("Baumarkt", "https://www.amazon.de/baumarkt-werkzeug-heimwerken/b/ref=sd_allcat_diy?ie=UTF8&node=80084031", numPages),
