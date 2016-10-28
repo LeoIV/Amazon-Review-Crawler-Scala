@@ -55,10 +55,8 @@ class CategorySpec extends FlatSpec with Matchers {
     assert(category.subcategories.get.head.name.length > 0)
   }
 
-  "A category" should "throw an exception on startup if the URL is wrong" in {
+  "A category" should "be undefined if the url is wrong" in {
     val category = new Category("Buecher", "https://www.amazon.de/fantasieUrl", 2)
-    a[IllegalArgumentException] should be thrownBy {
-      val subcategories = category.subcategories;
-    }
+    assert(category.subcategories.isFailure);
   }
 }
