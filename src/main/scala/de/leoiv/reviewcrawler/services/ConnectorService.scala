@@ -15,10 +15,11 @@ class ConnectorService {
     def res = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36").timeout(timeout).ignoreHttpErrors(true).followRedirects(true).execute()
     res.statusCode() match {
       case 200 => res
+      case 404 => throw new IllegalArgumentException;
       case _ => {
         println("Connection failed. Trying again...")
         Thread.sleep(1000)
-        res
+        response(url, timeout)
       }
     }
   }
