@@ -18,7 +18,7 @@ class Category(val name: String, val url: String, val pages: Int) {
 
   private def fetchSubkategorien: List[Subcategory] = {
     // Connect with amazon
-    val doc = ConnectorService.document(url)
+    val doc = ConnectorService(url, 1000)
     // Get all elements of left sidebar
     val linkContainer = doc getElementsByClass ("left_nav")
     // Then, get all links in there (as a Scala sequence)

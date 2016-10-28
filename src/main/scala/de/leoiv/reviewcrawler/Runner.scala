@@ -13,33 +13,36 @@ import org.apache.spark.{SparkContext, SparkConf}
 object Runner {
 
   def main(args: Array[String]): Unit = {
-
+    // Defining Spark Context
     val conf = new SparkConf().setMaster("local").setAppName("ReviewCrawler")
     val sc = new SparkContext(conf)
 
-    val input = sc.textFile("reviews.csv")
-    val result = input.map { line =>
+    // Opening files
+    val reviewInput = sc.textFile("reviews.csv")
+    val reviewRdd = reviewInput.map { line =>
       // semicolon is the separator
       val reader = new CSVReader(new StringReader(line), ';');
       reader.readNext();
     }
 
+    // opening file writers
+    val reviewFileWriter = new FileWriter("reviews.csv", true)
+
     // Initial category
     val category = new Category("Buecher", "https://www.amazon.de/b%C3%BCcher-buch-lesen/b/ref=sd_allcat_bo?ie=UTF8&node=186606", 10)
 
+    // Select only subcategories, that arent already saved in one of the CSVs
     val subcategories = category.subcategories
 
     // ignore all products that already have a review in the text file
-    val products = subcategories.map(_.products).filter(_.isSuccess).flatMap(_.get).filter(prod0 => result.count() == 0 || result.filter(prod1 => prod1(1) == prod0.asin).count() == 0)
-
-    val fw = new FileWriter("reviews.csv", true)
+    val products = subcategories.map(_.products).filter(_.isSuccess).flatMap(_.get).filter(prod => reviewRdd.count() == 0 || reviewRdd.filter(rev => rev(1) == prod.asin).count() == 0)
 
     for (product <- products) {
       for (review <- product.reviews.get
            if product.reviews.isSuccess) {
-        fw.write(category.name + ";" + product.asin + ";" + review.amazonId + ";" + review.title.replace(';', ',') + ";" + review.reviewText.replace(';', ',') + ";" + review.rating + "\n")
+        reviewFileWriter.write(category.name.replace(';', ',') + ";" + product.asin + ";" + review.amazonId + ";" + review.title.replace(';', ',') + ";" + review.reviewText.replace(';', ',') + ";" + review.rating + "\n")
       }
     }
-    fw.close();
+    reviewFileWriter.close();
   }
 }

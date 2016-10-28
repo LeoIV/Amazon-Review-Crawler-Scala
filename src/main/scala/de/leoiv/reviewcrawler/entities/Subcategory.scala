@@ -19,7 +19,7 @@ class Subcategory(val name: String, val url: String, val pages: Int) {
     println("Currently fetching products for subcategory " + name + " on page " + currentPage)
 
     // Connect with amazon
-    val doc = ConnectorService.document(url)
+    val doc = ConnectorService(url, 1000)
 
     val linkContainer = doc getElementsByClass ("s-result-item")
     //val linksWrapper = linkContainer.get(0).getElementsByClass("s-access-detail-page")

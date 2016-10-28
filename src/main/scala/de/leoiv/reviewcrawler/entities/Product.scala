@@ -71,7 +71,7 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
     }
     Try {
       println("fetching from " + url)
-      val document = ConnectorService.document(url)
+      val document = ConnectorService(url, 10000)
       val reviewContainers: Elements = document getElementById ("cm_cr-review_list") getElementsByClass ("review");
       val reviews = for {element: Element <- reviewContainers.asScala
                          rating: Set[String] = Set() ++ JavaConversions.asScalaSet(element.getElementsByClass("review-rating").get(0).classNames())

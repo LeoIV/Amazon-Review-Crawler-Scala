@@ -11,9 +11,8 @@ import org.jsoup.nodes.Document
   */
 class ConnectorService {
 
-  def response(url: String): Response = {
-
-    def res = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36").timeout(10000).ignoreHttpErrors(true).followRedirects(true).execute()
+  def response(url: String, timeout: Int): Response = {
+    def res = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36").timeout(timeout).ignoreHttpErrors(true).followRedirects(true).execute()
     res.statusCode() match {
       case 200 => res
       case _ => {
@@ -25,9 +24,9 @@ class ConnectorService {
   }
 
   // acting as a firefox
-  def document(url: String): Document = {
+  def document(url: String, timeout: Int): Document = {
     println("Connecting to " + url)
-    def res = response(url)
+    def res = response(url, timeout)
     def doc = res.parse()
     doc
   }
@@ -35,5 +34,5 @@ class ConnectorService {
 }
 
 object ConnectorService {
-  def document(url: String) = new ConnectorService().document(url)
+  def apply(url: String, timeout: Int) = new ConnectorService().document(url, timeout)
 }
