@@ -1,3 +1,3 @@
-# Scala Review Editor
-
-Bla
+# Amazon Review Crawler
+## Features
+* Crawling amazon reviews
