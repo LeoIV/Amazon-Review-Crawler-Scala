@@ -13,8 +13,6 @@ import scala.util.Try
   */
 class Product(var asin: String, var name: String, val pages: Int) extends Serializable {
 
-  println("product created (" + name + ")")
-
   lazy val reviews: Try[List[Review]] = Try(allReviews(pages))
 
   def allReviews(pages: Int): List[Review] = {
@@ -52,7 +50,8 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
         case `lastPage` => reviewAcc
         case _ => {
           val url = "http://www.amazon.de/product-reviews/" + asin + "/ref=cm_cr_arp_d_hist_" + stars + "?filterByStar=" + starsAsString(stars) + "_star&pageNumber=" + currentPage
-          collectReviews(reviewAcc ::: seachReviewsOnPage(url), currentPage + 1, lastPage, stars)
+          val reviewsOnPage = seachReviewsOnPage(url)
+          collectReviews(reviewsOnPage.getOrElse(List()) ::: reviewAcc, currentPage + 1, lastPage, stars)
         }
       }
     }
@@ -65,23 +64,24 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
     * @param url the url from which is fetched
     * @return
     */
-  private def seachReviewsOnPage(url: String): List[Review] = {
+  private def seachReviewsOnPage(url: String): Try[List[Review]] = {
     def getRating(classNames: Set[String]): Byte = {
       val starString = classNames.filter(_.indexOf("a-star-") >= 0).head
       starString.substring(starString.length - 1, starString.length) toByte
     }
-
-    println("fetching from " + url)
-    val document = ConnectorService.document(url)
-    val reviewContainers: Elements = document getElementById ("cm_cr-review_list") getElementsByClass ("review");
-    val reviews = for {element: Element <- reviewContainers.asScala
-                       rating: Set[String] = Set() ++ JavaConversions.asScalaSet(element.getElementsByClass("review-rating").get(0).classNames())
-                       amazonId: String = element.id()
-                       reviewTitle: String = element.getElementsByClass("review-title").get(0).text()
-                       reviewText: String = element.getElementsByClass("review-text").text()
-    } yield new Review(amazonId, getRating(Set() ++ rating), reviewTitle, reviewText)
-    val reviewList = List() ++ reviews
-    reviewList
+    Try {
+      println("fetching from " + url)
+      val document = ConnectorService.document(url)
+      val reviewContainers: Elements = document getElementById ("cm_cr-review_list") getElementsByClass ("review");
+      val reviews = for {element: Element <- reviewContainers.asScala
+                         rating: Set[String] = Set() ++ JavaConversions.asScalaSet(element.getElementsByClass("review-rating").get(0).classNames())
+                         amazonId: String = element.id()
+                         reviewTitle: String = element.getElementsByClass("review-title").get(0).text()
+                         reviewText: String = element.getElementsByClass("review-text").text()
+      } yield new Review(amazonId, getRating(Set() ++ rating), reviewTitle, reviewText)
+      val reviewList = List() ++ reviews
+      reviewList
+    }
   }
 
   override def toString(): String = "Product(" + asin + "," + name + "," + "," + pages + ", lazy val reviews)"

@@ -1,10 +1,10 @@
 package de.leoiv.reviewcrawler
 
-import java.util.Properties
+import java.io.{StringReader, FileWriter, PrintWriter}
 
-import de.leoiv.reviewcrawler.database_entities.Review
+import au.com.bytecode.opencsv.CSVReader
 import de.leoiv.reviewcrawler.entities.Category
-import slick.driver.MySQLDriver.api._
+import org.apache.spark.{SparkContext, SparkConf}
 
 
 /**
@@ -14,32 +14,32 @@ object Runner {
 
   def main(args: Array[String]): Unit = {
 
-    val cat = Category("Buecher", "https://www.amazon.de/b%C3%BCcher-buch-lesen/b/ref=sd_allcat_bo?ie=UTF8&node=186606", 2)
+    val conf = new SparkConf().setMaster("local").setAppName("ReviewCrawler")
+    val sc = new SparkContext(conf)
 
-    val iter = for {
-      subcategory <- cat.subcategories
-      if subcategory.products.isSuccess;
-      product <- subcategory.products.get
-      if product.reviews.isSuccess;
-      review <- product.reviews.get
-    } yield (0, review.amazonId, review.rating, review.title, review.reviewText, product.asin, product.name)
-
-    for (i <- iter)
-      println(i)
-
-
-    val reviews = TableQuery[Review]
-    val db = Database.forURL("jdbc:mysql://localhost/projektarbeit", "root", "", new Properties(), "com.mysql.jdbc.Driver")
-    try {
-      val setup = DBIO.seq(
-        //reviews.schema.create,
-        reviews ++= iter.toIterable)
-      //  reviews +=(23, "test", 4, "test", "test", "test", "test"))
-      db.run(setup.transactionally)
+    val input = sc.textFile("reviews.csv")
+    val result = input.map { line =>
+      // semicolon is the separator
+      val reader = new CSVReader(new StringReader(line), ';');
+      reader.readNext();
     }
-    catch {
-      case e: Exception => e.printStackTrace()
+
+    // Initial category
+    val category = new Category("Buecher", "https://www.amazon.de/b%C3%BCcher-buch-lesen/b/ref=sd_allcat_bo?ie=UTF8&node=186606", 10)
+
+    val subcategories = category.subcategories
+
+    // ignore all products that already have a review in the text file
+    val products = subcategories.map(_.products).filter(_.isSuccess).flatMap(_.get).filter(prod0 => result.count() == 0 || result.filter(prod1 => prod1(1) == prod0.asin).count() == 0)
+
+    val fw = new FileWriter("reviews.csv", true)
+
+    for (product <- products) {
+      for (review <- product.reviews.get
+           if product.reviews.isSuccess) {
+        fw.write(category.name + ";" + product.asin + ";" + review.amazonId + ";" + review.title.replace(';', ',') + ";" + review.reviewText.replace(';', ',') + ";" + review.rating + "\n")
+      }
     }
-    finally db.close()
+    fw.close();
   }
 }

@@ -14,8 +14,6 @@ import scala.collection.JavaConverters._
   */
 class Category(val name: String, val url: String, val pages: Int) {
 
-  println("category created (" + name + ")")
-
   lazy val subcategories: List[Subcategory] = fetchSubkategorien
 
   private def fetchSubkategorien: List[Subcategory] = {
@@ -30,15 +28,11 @@ class Category(val name: String, val url: String, val pages: Int) {
       case Nil => categoryAcc
       case h :: t => {
         val currentLink: Element = elements.head
-        collectSubcategories(new Subcategory(currentLink.text(), "https://www.amazon.de" + currentLink.attr("href"), pages) :: categoryAcc, elements.tail)
+        collectSubcategories(new Subcategory(currentLink.text(), "https://www.amazon.de" + currentLink.attr("href"), pages) :: categoryAcc, t)
       }
     }
     collectSubcategories(List(), links)
   }
 
   override def toString(): String = "Category(" + name + "," + url + "," + pages + ", lazy val subcategories)"
-}
-
-object Category{
-  def apply(name: String, url: String, pages: Int): Category = new Category(name, url, pages)
 }
