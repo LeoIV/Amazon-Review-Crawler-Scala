@@ -17,7 +17,7 @@ class ConnectorService {
       case 200 => res
       case 404 => throw new IllegalArgumentException;
       case _ => {
-        println("Connection failed. Trying again...")
+        println("Connection to "+url+" failed. Trying again...")
         Thread.sleep(1000)
         response(url, timeout)
       }
@@ -26,7 +26,6 @@ class ConnectorService {
 
   // acting as a firefox
   def document(url: String, timeout: Int): Document = {
-    println("Connecting to " + url)
     def res = response(url, timeout)
     def doc = res.parse()
     doc

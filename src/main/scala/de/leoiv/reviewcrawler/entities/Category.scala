@@ -28,11 +28,12 @@ class Category(val name: String, val url: String, val pages: Int) {
 
       def collectSubcategories(categoryAcc: List[Subcategory], elements: List[Element]): List[Subcategory] = elements match {
         case Nil => categoryAcc
-        case h :: t => {
-          val currentLink: Element = elements.head
-          collectSubcategories(new Subcategory(currentLink.text(), "https://www.amazon.de" + currentLink.attr("href"), pages) :: categoryAcc, t)
+        case head :: tail => {
+          val currentLink: Element = head
+          collectSubcategories(new Subcategory(currentLink.text(), "https://www.amazon.de" + currentLink.attr("href"), pages) :: categoryAcc, tail)
         }
       }
+
       collectSubcategories(List(), links)
     }
   }

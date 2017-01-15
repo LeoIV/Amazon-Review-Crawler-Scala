@@ -16,7 +16,6 @@ class Subcategory(val name: String, val url: String, val pages: Int) {
   lazy val products: Try[List[Product]] = Try(fetchProducts(List(), url, 1))
 
   private def fetchProducts(outerProductAcc: List[Product], url: String, currentPage: Int): List[Product] = {
-    println("Currently fetching products for subcategory " + name + " on page " + currentPage)
 
     // Connect with amazon
     val doc = ConnectorService(url, 1000)
@@ -27,14 +26,15 @@ class Subcategory(val name: String, val url: String, val pages: Int) {
 
     def collectProducts(productAcc: List[Product], elements: List[Element]): List[Product] = elements match {
       case Nil => productAcc
-      case h :: t => {
-        val currentLinkContainer: Element = elements.head
+      case head :: tail => {
+        val currentLinkContainer: Element = head
         val name = currentLinkContainer.getElementsByClass("s-access-detail-page").get(0).attr("title")
         val asin = currentLinkContainer.attr("data-asin")
         val prod = new Product(asin, name, pages)
-        collectProducts(prod :: productAcc, t)
+        collectProducts(prod :: productAcc, tail)
       }
     }
+
     val currentReviewList = collectProducts(outerProductAcc, linkContainerList)
 
     // if element "next page" is not clickable or the current page is larger than the speci

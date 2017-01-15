@@ -4,7 +4,7 @@ import de.leoiv.reviewcrawler.services.ConnectorService
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
-import scala.collection.JavaConversions
+import scala.collection.{JavaConversions, mutable}
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -16,16 +16,16 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
   lazy val reviews: Try[List[Review]] = Try(allReviews(pages))
 
   def allReviews(pages: Int): List[Review] = {
-
-    println("collecting reviews")
-
     def collectReviews(reviewAcc: List[Review], currentStar: Int): List[Review] = {
       currentStar match {
         case 6 => reviewAcc
         case _ => reviewsWithRating(currentStar, pages) ::: collectReviews(reviewAcc, currentStar + 1)
       }
     }
-    collectReviews(List(), 1)
+
+    val reviewList = collectReviews(List(), 1)
+    if (reviewList.length > 0) println("collected " + reviewList.length + " reviews for product " + name)
+    reviewList
   }
 
   /**
@@ -35,10 +35,10 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
     * @param pages the method will fetch reviews from pages 1 - (pages-1)
     * @return
     */
-  def reviewsWithRating(stars: Int, pages: Int): List[Review] = {
+    def reviewsWithRating(stars: Int, pages: Int): List[Review] = {
     def starsAsString(star: Int): String = star match {
-      case 1 => "one"
-      case 2 => "two"
+    case 1 => "one"
+    case 2 => "two"
       case 3 => "three"
       case 4 => "four"
       case 5 => "five"
@@ -50,11 +50,12 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
         case `lastPage` => reviewAcc
         case _ => {
           val url = "http://www.amazon.de/product-reviews/" + asin + "/ref=cm_cr_arp_d_hist_" + stars + "?filterByStar=" + starsAsString(stars) + "_star&pageNumber=" + currentPage
-          val reviewsOnPage = seachReviewsOnPage(url)
+          val reviewsOnPage = searchReviewsOnPage(url)
           collectReviews(reviewsOnPage.getOrElse(List()) ::: reviewAcc, currentPage + 1, lastPage, stars)
         }
       }
     }
+
     collectReviews(List(), 1, pages, stars)
   }
 
@@ -64,23 +65,22 @@ class Product(var asin: String, var name: String, val pages: Int) extends Serial
     * @param url the url from which is fetched
     * @return
     */
-  private def seachReviewsOnPage(url: String): Try[List[Review]] = {
+  private def searchReviewsOnPage(url: String): Try[List[Review]] = {
     def getRating(classNames: Set[String]): Byte = {
       val starString = classNames.filter(_.indexOf("a-star-") >= 0).head
       starString.substring(starString.length - 1, starString.length) toByte
     }
+
     Try {
-      println("fetching from " + url)
       val document = ConnectorService(url, 10000)
       val reviewContainers: Elements = document getElementById ("cm_cr-review_list") getElementsByClass ("review");
-      val reviews = for {element: Element <- reviewContainers.asScala
-                         rating: Set[String] = Set() ++ JavaConversions.asScalaSet(element.getElementsByClass("review-rating").get(0).classNames())
-                         amazonId: String = element.id()
-                         reviewTitle: String = element.getElementsByClass("review-title").get(0).text()
-                         reviewText: String = element.getElementsByClass("review-text").text()
+      val reviews: mutable.Seq[Review] = for {element: Element <- reviewContainers.asScala
+                                              rating: Set[String] = Set() ++ JavaConversions.asScalaSet(element.getElementsByClass("review-rating").get(0).classNames())
+                                              amazonId: String = element.id()
+                                              reviewTitle: String = element.getElementsByClass("review-title").get(0).text()
+                                              reviewText: String = element.getElementsByClass("review-text").text()
       } yield new Review(amazonId, getRating(Set() ++ rating), reviewTitle, reviewText)
-      val reviewList = List() ++ reviews
-      reviewList
+      reviews.toList
     }
   }
 
